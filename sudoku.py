@@ -18,8 +18,9 @@ class Sudoku:
         self.start_time = None
         self.is_game_active = False
 
-        self.create_start_screen()
+        self.selected_cell = None
 
+        self.create_start_screen()
         self.window.bind("<Escape>", self.return_to_start_screen)
 
     def create_start_screen(self):
@@ -64,7 +65,7 @@ class Sudoku:
     def start_game(self, level):
         self.level = level
         self.clear_window()
-        self.window.geometry("530x600")
+        self.window.geometry("530x610")
         self.board = self.generate_board(self.level)
         self.create_board()
         self.start_time = time.time()
@@ -119,6 +120,7 @@ class Sudoku:
                             entry.insert(0, self.board[board_row][board_col])
                             entry.config(state='readonly')
 
+                        entry.bind("<Button-1>", lambda e, r=board_row, c=board_col: self.select_cell(r, c))
                         self.cells.append(entry)
 
         button_frame = tk.Frame(self.window, bg="#f0f8ff")
@@ -129,7 +131,13 @@ class Sudoku:
                                  bd=0, activebackground="#5f9ea0")
         check_button.grid(row=0, column=0, padx=5)
 
+        suggestion_button = tk.Button(button_frame, text="Sugestão", command=self.provide_suggestion,
+                                       font=('Arial', 14), bg="#87ceeb", fg="black", relief='flat',
+                                       bd=0, activebackground="#5f9ea0")
+        suggestion_button.grid(row=0, column=1, padx=5)
+
         self.rounded_button_style(check_button)
+        self.rounded_button_style(suggestion_button)
 
         self.time_label = tk.Label(self.window, text="Tempo: 00:00", font=('Arial', 14), bg="#f0f8ff")
         self.time_label.grid(row=4, column=0, columnspan=3)
@@ -175,9 +183,25 @@ class Sudoku:
     def is_valid_solution(self):
         return True
 
+    def select_cell(self, row, col):
+        self.selected_cell = (row, col)
+
+    def provide_suggestion(self):
+        if self.selected_cell is None:
+            messagebox.showinfo("Sugestão", "Selecione uma célula primeiro.")
+            return
+
+        row, col = self.selected_cell
+        for num in range(1, 10):
+            if self.is_valid(self.board, row, col, num):
+                messagebox.showinfo("Sugestão", f"Sugestão para ({row+1}, {col+1}): {num}")
+                return
+
+        messagebox.showinfo("Sugestão", "Não há sugestões válidas para esta célula.")
+
     def create_instructions_screen(self):
         self.clear_window()
-        self.window.geometry("800x500")
+        self.window.geometry("600x400")
 
         instructions_label = tk.Label(self.window, text="Instruções do Sudoku", font=('Arial', 24), bg="#f0f8ff")
         instructions_label.pack(pady=20)
@@ -190,29 +214,29 @@ class Sudoku:
             "Cada coluna, cada linha e cada uma das nove subgrades 3x3 devem\n"
             "conter todos os números de 1 a 9 sem repetição.\n\n"
             "Regras:\n"
-            "1. Cada número pode aparecer apenas uma vez em cada linha.\n"
-            "2. Cada número pode aparecer apenas uma vez em cada coluna.\n"
-            "3. Cada número pode aparecer apenas uma vez em cada subgrade 3x3.\n\n"
-            "Como jogar:\n"
-            "1. Clique em uma célula para inserir um número.\n"
-            "2. Utilize o botão 'Verificar' para validar sua solução.\n"
-            "3. Boa sorte e divirta-se!"
+            "1. Cada linha deve conter todos os números de 1 a 9 sem repetições.\n"
+            "2. Cada coluna deve conter todos os números de 1 a 9 sem repetições.\n"
+            "3. Cada subgrade 3x3 deve conter todos os números de 1 a 9 sem repetições.\n\n"
+            "Dicas:\n"
+            "1. Comece preenchendo as células que têm mais restrições.\n"
+            "2. Use o processo de eliminação para descobrir números possíveis.\n"
+            "3. Se estiver preso, não hesite em pedir sugestões.\n\n"
+            "Divirta-se jogando Sudoku!"
         )
 
-        text_widget = tk.Text(instructions_frame, wrap='word', width=70, height=15, font=('Arial', 14))
-        text_widget.insert(tk.END, instructions_text)
-        text_widget.config(state='disabled')
+        instructions_text_box = tk.Text(instructions_frame, wrap='word', width=70, height=15)
+        instructions_text_box.insert(tk.END, instructions_text)
+        instructions_text_box.config(state='normal')
+        instructions_text_box.pack(side=tk.LEFT)
 
-        scrollbar = tk.Scrollbar(instructions_frame, command=text_widget.yview)
-        text_widget['yscrollcommand'] = scrollbar.set
-
-        text_widget.pack(side=tk.LEFT)
+        scrollbar = tk.Scrollbar(instructions_frame, command=instructions_text_box.yview)
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+        instructions_text_box.config(yscrollcommand=scrollbar.set)
 
         back_button = tk.Button(self.window, text="Voltar", command=self.create_start_screen,
                                 font=('Arial', 16), bg="#87ceeb", fg="black", relief='flat',
                                 bd=0, activebackground="#5f9ea0")
-        back_button.pack(pady=20)
+        back_button.pack(pady=10)
 
         self.rounded_button_style(back_button)
 
