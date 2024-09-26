@@ -9,30 +9,25 @@ class Sudoku:
         self.window = tk.Tk()
         self.window.title("Sudoku")
         self.window.iconbitmap("C:/Users/Estudo e Projetoss/Desktop/SUDOKU/caneta.ico")
-        self.window.geometry("530x300")  # Tamanho reduzido: largura 530, altura 300
-        self.window.configure(bg="#f0f8ff")  # Cor de fundo
+        self.window.geometry("530x300")
+        self.window.configure(bg="#f0f8ff")
 
-        self.level = 1  # Nível inicial
+        self.level = 1
         self.board = self.generate_board(self.level)
         self.cells = []
-        self.start_time = None  # Para o timer
-        self.is_game_active = False  # Flag para verificar se o jogo está ativo
-        self.selected_cell = None  # Para armazenar a célula selecionada
+        self.start_time = None
+        self.is_game_active = False
 
-        # Exibir tela inicial
         self.create_start_screen()
 
-        # Vincular tecla ESC
         self.window.bind("<Escape>", self.return_to_start_screen)
 
-    # Tela inicial
     def create_start_screen(self):
         self.clear_window()
 
         label = tk.Label(self.window, text="Bem-vindo ao Sudoku", font=('Arial', 24), bg="#f0f8ff")
         label.pack(pady=20)
 
-        # Criando botões de dificuldade
         difficulty_frame = tk.Frame(self.window, bg="#f0f8ff")
         difficulty_frame.pack(pady=10)
 
@@ -51,49 +46,48 @@ class Sudoku:
                                 bd=0, activebackground="#5f9ea0")
         hard_button.pack(side=tk.LEFT, padx=5)
 
-        # Estilo para arredondar os botões
+        instructions_button = tk.Button(self.window, text="Instruções", command=self.create_instructions_screen,
+                                         font=('Arial', 16), bg="#87ceeb", fg="black", relief='flat',
+                                         bd=0, activebackground="#5f9ea0")
+        instructions_button.pack(pady=10)
+
         self.rounded_button_style(easy_button)
         self.rounded_button_style(medium_button)
         self.rounded_button_style(hard_button)
+        self.rounded_button_style(instructions_button)
 
-    # Função para estilizar botões
     def rounded_button_style(self, button):
         button.config(bd=0, highlightthickness=0)
-        button.bind("<Enter>", lambda e: button.config(bg="#5f9ea0"))  # Muda a cor ao passar o mouse
-        button.bind("<Leave>", lambda e: button.config(bg="#87ceeb"))  # Retorna a cor original ao sair
+        button.bind("<Enter>", lambda e: button.config(bg="#5f9ea0"))
+        button.bind("<Leave>", lambda e: button.config(bg="#87ceeb"))
 
-    # Inicia o jogo e substitui a tela inicial
     def start_game(self, level):
-        self.level = level  # Define o nível de dificuldade
-        self.clear_window()  # Limpa a tela inicial
-        self.window.geometry("530x600")  # Retorna para o tamanho original ao iniciar o jogo
-        self.board = self.generate_board(self.level)  # Gera o novo tabuleiro
-        self.create_board()  # Cria o tabuleiro do jogo
-        self.start_time = time.time()  # Inicia o cronômetro
-        self.is_game_active = True  # O jogo agora está ativo
-        self.display_time()  # Começa a contagem do tempo
+        self.level = level
+        self.clear_window()
+        self.window.geometry("530x600")
+        self.board = self.generate_board(self.level)
+        self.create_board()
+        self.start_time = time.time()
+        self.is_game_active = True
+        self.display_time()
 
-    # Limpar janela (útil para remover widgets ao mudar de tela)
     def clear_window(self):
         for widget in self.window.winfo_children():
             widget.destroy()
 
-    # Retorna à tela inicial
     def return_to_start_screen(self, event):
         self.create_start_screen()
-        self.window.geometry("530x300")  # Redimensiona para 530x300 ao voltar
-        self.is_game_active = False  # O jogo não está mais ativo
+        self.window.geometry("530x300")
+        self.is_game_active = False
 
-    # Tabuleiro por nível de dificuldade
     def generate_board(self, level):
         board = [[0 for _ in range(9)] for _ in range(9)]
-        
-        # Define o número de células preenchidas com base no nível de dificuldade
-        if level == 1:  # Fácil
+
+        if level == 1:
             filled_cells = 50
-        elif level == 2:  # Médio
+        elif level == 2:
             filled_cells = 40
-        else:  # Difícil
+        else:
             filled_cells = 30
 
         for _ in range(filled_cells):
@@ -104,35 +98,29 @@ class Sudoku:
 
         return board
 
-    # Interface do tabuleiro
     def create_board(self):
-        self.cells.clear()  # Limpa as células antes de criar novas
+        self.cells.clear()
 
-        for box_row in range(3):  # Para cada bloco 3x3
+        for box_row in range(3):
             for box_col in range(3):
-                frame = tk.Frame(self.window, bg="#4682b4", bd=2)  # Frame para cada bloco 3x3
+                frame = tk.Frame(self.window, bg="#4682b4", bd=2)
                 frame.grid(row=box_row, column=box_col, padx=5, pady=5)
 
-                for row in range(3):  # Preencher cada bloco 3x3
+                for row in range(3):
                     for col in range(3):
                         entry = tk.Entry(frame, width=2, font=('Arial', 24), justify='center',
                                          bg="#e6e6fa", bd=2, relief='solid',
                                          highlightthickness=1, highlightbackground="#4682b4")
                         entry.grid(row=row, column=col, padx=5, pady=5)
 
-                        # Insere número se já estiver preenchido
                         board_row = box_row * 3 + row
                         board_col = box_col * 3 + col
                         if self.board[board_row][board_col] != 0:
                             entry.insert(0, self.board[board_row][board_col])
-                            entry.config(state='readonly')  # Bloqueia células preenchidas inicialmente
-
-                        # Armazena a célula selecionada ao clicar
-                        entry.bind("<Button-1>", lambda e, r=board_row, c=board_col: self.select_cell(r, c))
+                            entry.config(state='readonly')
 
                         self.cells.append(entry)
 
-        # Usando grid para os botões
         button_frame = tk.Frame(self.window, bg="#f0f8ff")
         button_frame.grid(row=3, column=0, columnspan=3, pady=10)
 
@@ -141,96 +129,93 @@ class Sudoku:
                                  bd=0, activebackground="#5f9ea0")
         check_button.grid(row=0, column=0, padx=5)
 
-        hint_button = tk.Button(button_frame, text="Dica", command=self.give_hint,
-                                font=('Arial', 14), bg="#87ceeb", fg="black", relief='flat',
-                                bd=0, activebackground="#5f9ea0")
-        hint_button.grid(row=0, column=1, padx=5)
-
-        # Estilo para os botões
         self.rounded_button_style(check_button)
-        self.rounded_button_style(hint_button)
 
-        # Label para exibir o tempo
         self.time_label = tk.Label(self.window, text="Tempo: 00:00", font=('Arial', 14), bg="#f0f8ff")
         self.time_label.grid(row=4, column=0, columnspan=3)
 
-    # Atualiza o tempo decorrido
     def display_time(self):
-        if self.is_game_active:  # Verifica se o jogo está ativo
+        if self.is_game_active:
             if self.start_time:
                 elapsed_time = int(time.time() - self.start_time)
                 minutes, seconds = divmod(elapsed_time, 60)
                 time_label = f"{minutes:02}:{seconds:02}"
                 self.time_label.config(text=f"Tempo: {time_label}")
-            self.window.after(1000, self.display_time)  # Atualiza a cada segundo
+            self.window.after(1000, self.display_time)
 
-    # Seleciona uma célula ao clicar
-    def select_cell(self, row, col):
-        self.selected_cell = (row, col)
-
-    # Fornece uma dica para a célula selecionada
-    def give_hint(self):
-        if self.selected_cell:
-            row, col = self.selected_cell
-            possible_numbers = self.get_possible_numbers(row, col)
-            if possible_numbers:
-                hint_number = random.choice(possible_numbers)
-                messagebox.showinfo("Dica", f"Tente colocar o número: {hint_number} na célula ({row + 1}, {col + 1})")
-            else:
-                messagebox.showinfo("Dica", "Não há sugestões disponíveis para esta célula.")
-
-    # Obtém números possíveis para uma célula específica
-    def get_possible_numbers(self, row, col):
-        if self.board[row][col] != 0:  # Se a célula já está preenchida
-            return []
-
-        possible_numbers = set(range(1, 10))  # Números de 1 a 9
-
-        # Remove números das linhas e colunas
-        for i in range(9):
-            if self.board[row][i] in possible_numbers:
-                possible_numbers.remove(self.board[row][i])
-            if self.board[i][col] in possible_numbers:
-                possible_numbers.remove(self.board[i][col])
-
-        # Remove números dos blocos 3x3
-        box_row_start = (row // 3) * 3
-        box_col_start = (col // 3) * 3
-        for r in range(box_row_start, box_row_start + 3):
-            for c in range(box_col_start, box_col_start + 3):
-                if self.board[r][c] in possible_numbers:
-                    possible_numbers.remove(self.board[r][c])
-
-        return list(possible_numbers)
-
-    # Verifica se a solução está correta
-    def check_solution(self):
-        # A lógica para verificar se a solução do Sudoku está correta deve ser implementada aqui
-        for i in range(9):
-            for j in range(9):
-                entry = self.cells[i * 9 + j]
-                if entry.get() != "":
-                    if not self.is_valid(board=self.board, row=i, col=j, num=int(entry.get())):
-                        messagebox.showerror("Erro", "Solução incorreta!")
-                        return
-        messagebox.showinfo("Parabéns!", "Você completou o Sudoku!")
-
-    # Verifica se um número pode ser colocado em uma célula
     def is_valid(self, board, row, col, num):
+        if num in board[row]:
+            return False
+
         for i in range(9):
-            if board[row][i] == num or board[i][col] == num:
+            if board[i][col] == num:
                 return False
 
-        box_row_start = (row // 3) * 3
-        box_col_start = (col // 3) * 3
-        for r in range(box_row_start, box_row_start + 3):
-            for c in range(box_col_start, box_col_start + 3):
-                if board[r][c] == num:
+        start_row, start_col = (row // 3) * 3, (col // 3) * 3
+        for i in range(3):
+            for j in range(3):
+                if board[start_row + i][start_col + j] == num:
                     return False
 
         return True
 
-    # Iniciar o jogo
+    def check_solution(self):
+        for row in range(9):
+            for col in range(9):
+                if self.cells[row * 9 + col].get() == "":
+                    messagebox.showerror("Erro", "Preencha todas as células!")
+                    return
+
+                if not self.is_valid_solution():
+                    messagebox.showerror("Erro", "Solução incorreta!")
+                    return
+
+        messagebox.showinfo("Parabéns!", "Você completou o Sudoku!")
+
+    def is_valid_solution(self):
+        return True
+
+    def create_instructions_screen(self):
+        self.clear_window()
+        self.window.geometry("800x500")
+
+        instructions_label = tk.Label(self.window, text="Instruções do Sudoku", font=('Arial', 24), bg="#f0f8ff")
+        instructions_label.pack(pady=20)
+
+        instructions_frame = tk.Frame(self.window)
+        instructions_frame.pack(pady=10)
+
+        instructions_text = (
+            "O objetivo do Sudoku é preencher uma grade 9x9 com números de 1 a 9.\n"
+            "Cada coluna, cada linha e cada uma das nove subgrades 3x3 devem\n"
+            "conter todos os números de 1 a 9 sem repetição.\n\n"
+            "Regras:\n"
+            "1. Cada número pode aparecer apenas uma vez em cada linha.\n"
+            "2. Cada número pode aparecer apenas uma vez em cada coluna.\n"
+            "3. Cada número pode aparecer apenas uma vez em cada subgrade 3x3.\n\n"
+            "Como jogar:\n"
+            "1. Clique em uma célula para inserir um número.\n"
+            "2. Utilize o botão 'Verificar' para validar sua solução.\n"
+            "3. Boa sorte e divirta-se!"
+        )
+
+        text_widget = tk.Text(instructions_frame, wrap='word', width=70, height=15, font=('Arial', 14))
+        text_widget.insert(tk.END, instructions_text)
+        text_widget.config(state='disabled')
+
+        scrollbar = tk.Scrollbar(instructions_frame, command=text_widget.yview)
+        text_widget['yscrollcommand'] = scrollbar.set
+
+        text_widget.pack(side=tk.LEFT)
+        scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        back_button = tk.Button(self.window, text="Voltar", command=self.create_start_screen,
+                                font=('Arial', 16), bg="#87ceeb", fg="black", relief='flat',
+                                bd=0, activebackground="#5f9ea0")
+        back_button.pack(pady=20)
+
+        self.rounded_button_style(back_button)
+
     def run(self):
         self.window.mainloop()
 
