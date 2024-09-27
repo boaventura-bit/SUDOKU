@@ -66,9 +66,8 @@ O executável será gerado na pasta `dist/`.
 ## Instalação do Jogo 💻
 
 Baixe o instalador do jogo através do seguinte link:
-[Link para o instalador](https://www.mediafire.com/file/3xp09kgf6x8f1s7/sudoku_installer.exe/file)
+[Link para o instalador](https://www.mediafire.com/file/c0y9d6kjr7xdkeb/sudoku_v1.0.1_installer.exe/file)
 
-**Observação:** O ícone do jogo deve ser adicionado através da propriedade do atalho na área de trabalho.
 
 ## Licença 📄
 
