@@ -2,12 +2,15 @@ import tkinter as tk
 import random
 from tkinter import messagebox
 import time
+import os
 
 class Sudoku:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Sudoku")
-        self.window.iconbitmap("C:/Users/Estudo e Projetoss/Desktop/SUDOKU/caneta.ico")
+        icon_path = os.path.join(os.path.dirname(__file__), 'C:/Users/karlo/Desktop/SUDOKU/caneta.ico')
+        self.window.iconbitmap(icon_path)
+        self.window.iconbitmap("C:/Users/karlo/Desktop/SUDOKU/caneta.ico")
         self.window.geometry("530x250")
         self.window.configure(bg="#f0f8ff")
 
